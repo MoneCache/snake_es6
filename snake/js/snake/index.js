@@ -39,7 +39,6 @@ class Snake {
   createSnakeContainer () {
     const div = document.createElement('div')
     this.ele = div
-    div.style.id = 'snake'
     div.style.position = this.position
     div.style.top = this.y
     div.style.left - this.x
@@ -55,43 +54,49 @@ class Snake {
   move (direction) {
     this.direction = direction
     let axyis = this.getSnakeHeadCoordinate()
-    if (axyis.x < this.el.offsetWidth && axyis.x > 0 && axyis.y < this.el.offsetHeight && axyis.y > 0) {
-      this.x = axyis.x
-      this.y = axyis.y
-      axyis.color = 'green'
-      this.body = this.body.splice(0,1)
-      this.body.unshift(axyis)
-    this.drawSnake(this.ele)
-
+    console.log(axyis)
+    let snakeHead = axyis[0]
+    snakeHead.color = 'green'
+    if (
+      (this.direction === 'left' && snakeHead.x > 0) || 
+      (this.direction === 'right' && snakeHead.x < this.el.offsetWidth) ||
+      (this.direction === 'top' && snakeHead.y > 0) ||
+      (this.direction === 'bottom' && snakeHead.y < this.el.offsetHeight)
+      ) {
+        this.x = snakeHead.x
+        this.y = snakeHead.y
+        this.body = axyis
+        this.drawSnake(this.ele)
     }
     else {
       clearInterval(this.interval)
       alert('游戏结束!!!')
     }
-    console.log(axyis)
   }
   getSnakeHeadCoordinate () {
-    let tempObj = {
-      x: 0,
-      y: 0
-    }
-    if (this.direction === 'right') {
-      tempObj.x += this.step
-      tempObj.y = this.y
-    }
-    else if (this.direction === 'left') {
-      tempObj.x -= this.step
-      tempObj.y = this.y
-    }
-    else if (this.direction === 'top') {
-      tempObj.y -= this.step
-      tempObj.x = this.x
-    }
-    else if (this.direction === 'bottom') {
-      tempObj.y += this.step
-      tempObj.x = this.x
-    }
-    return tempObj
+    const body = JSON.parse(JSON.stringify(this.body))
+    let tempArr = body.map(item => {
+      
+      if (this.direction === 'right') {
+        item.x += this.step
+        item.y = this.y
+      }
+      else if (this.direction === 'left') {
+        item.x -= this.step
+        item.y = this.y
+      }
+      else if (this.direction === 'top') {
+        item.y -= this.step
+        item.x = this.x
+      }
+      else if (this.direction === 'bottom') {
+        item.y += this.step
+        item.x = this.x
+      }
+      return item
+    })
+    // console.log(tempArr)
+    return tempArr
   }
   autoPerform () {
     this.interval = setInterval(() => {
@@ -102,7 +107,6 @@ class Snake {
         }
       }
       this.move(this.direction)
-      // this.drawSnake(this.ele)
     }, this.speed)
   }
   // 键盘事件处理
@@ -120,6 +124,12 @@ class Snake {
       }
       else if (e.key === 'ArrowRight') {
         this.direction = 'right'
+      }
+      const nodes = this.ele.childNodes
+      if (nodes.length > 0) {
+        for (var i = nodes.length - 1; i >= 0; i--) {
+          this.ele.removeChild(nodes[i]);
+        }
       }
       this.move(this.direction)
     }, true)
