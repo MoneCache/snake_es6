@@ -8,11 +8,26 @@ class Snake {
     this.interval = null
     this.x = this.width * (this.size - 1) // 减去1代表, 蛇头是正方形, 初始化时, 蛇头右上方的顶点坐标才是蛇头的正确位置
     this.y = 0
-    this.direction = 'left'
+    this.direction = 'right'
     this.step = obj.step || 10
     this.speed = obj.speed || 1000
     this.el = el
     this.ele = null
+    this.body = [
+      {
+        x: 40,
+        y: 0,
+        color: 'green'
+      },
+      {
+        x: 20,
+        y: 0
+      },
+      {
+        x: 0,
+        y: 0
+      }
+    ]
   }
 
   init () {
@@ -24,84 +39,59 @@ class Snake {
   createSnakeContainer () {
     const div = document.createElement('div')
     this.ele = div
+    div.style.id = 'snake'
     div.style.position = this.position
     div.style.top = this.y
     div.style.left - this.x
-    this.createSnakeHead(div)
-    this.createSnakeBody(div)
+    this.drawSnake(div)
     this.el.appendChild(div)
   }
-  createSnakeHead (el) {
-   new SnakeFestival({
-      left: this.x,
-      top: this.y,
-      color: 'green'
-    }, el)
-  }
-  createSnakeBody (el) {
-    for (let i = 0; i < this.size - 1; i ++) {
-      new SnakeFestival({
-        left: this.x - (i + 1) * 20,
-        top: this.y
-      }, el)
-    }
+  drawSnake (el) {
+    this.body.forEach(snakeFestival => {
+      new SnakeFestival(snakeFestival, el)
+    })
   }
 
   move (direction) {
     this.direction = direction
+    let axyis = this.getSnakeHeadCoordinate()
+    if (axyis.x < this.el.offsetWidth && axyis.x > 0 && axyis.y < this.el.offsetHeight && axyis.y > 0) {
+      this.x = axyis.x
+      this.y = axyis.y
+      axyis.color = 'green'
+      this.body = this.body.splice(0,1)
+      this.body.unshift(axyis)
+    this.drawSnake(this.ele)
+
+    }
+    else {
+      clearInterval(this.interval)
+      alert('游戏结束!!!')
+    }
+    console.log(axyis)
+  }
+  getSnakeHeadCoordinate () {
+    let tempObj = {
+      x: 0,
+      y: 0
+    }
     if (this.direction === 'right') {
-      this.moveRight()
+      tempObj.x += this.step
+      tempObj.y = this.y
     }
     else if (this.direction === 'left') {
-     this.moveLeft()
+      tempObj.x -= this.step
+      tempObj.y = this.y
     }
     else if (this.direction === 'top') {
-      this.moveTop()
-     }
-     else if (this.direction === 'bottom') {
-      this.moveBottom()
-     }
-
-  }
-  moveLeft () {
-    // 1 像左移动, 必须保证, 蛇头的位置 要大于自身长度 * 蛇节的个数,才可以移动
-    // 1.1 像左移动, x的值为 0 时, 游戏结束
-    if ((this.size - 1) * this.width > this.x) {
-      if (this.x > 0) {
-        his.x -= this.step
-      }
-      else {
-        clearInterval(this.interval)
-        alert('游戏结束!!')
-      }
+      tempObj.y -= this.step
+      tempObj.x = this.x
     }
-  }
-  moveRight () {
-     if (this.x < (this.el.offsetWidth - this.width)) {
-      this.x += this.step
+    else if (this.direction === 'bottom') {
+      tempObj.y += this.step
+      tempObj.x = this.x
     }
-    else {
-      clearInterval(this.interval)
-      alert('游戏结束!!')
-    }
-  }
-  moveBottom () {
-    if (this.y < this.el.offsetHeight) {
-      this.y += this.step
-    }
-    else {
-      clearInterval(this.interval)
-      alert('游戏结束!!')
-    }
-  }
-  moveTop () {
-    if (this.y > 0) {
-      this.y -= this.step
-    }
-    else {
-      clearInterval(this.interval)
-      alert('游戏结束!!')
-    }
+    return tempObj
   }
   autoPerform () {
     this.interval = setInterval(() => {
@@ -112,7 +102,7 @@ class Snake {
         }
       }
       this.move(this.direction)
-      this.createSnakeContainer()
+      // this.drawSnake(this.ele)
     }, this.speed)
   }
   // 键盘事件处理
@@ -138,8 +128,8 @@ class Snake {
 class SnakeFestival extends Snake  {
   constructor(obj, el) {
     super(obj, el)
-    this.x = obj.left || 0
-    this.y = obj.top || 0
+    this.x = obj.x || 0
+    this.y = obj.y || 0
     this.el = el
     this.color = obj.color || 'blue'
     this._init()
