@@ -1,3 +1,5 @@
+import { Food } from '../food/index.js'
+
 class Snake {
   constructor (obj, el) {
     this.position = 'absolute'
@@ -34,6 +36,7 @@ class Snake {
 
   init () {
     this.createSnakeContainer()
+    this.generateFood()
     this.autoPerform()
     this.keyboard()
   }
@@ -48,7 +51,12 @@ class Snake {
     this.el.appendChild(div)
   }
   drawSnake (el) {
-    console.log(this.body)
+    this.body.forEach(item => {
+      if (item.color) {
+        delete item.color
+      } 
+    })
+    this.body[this.body.length -1].color = this.color
     this.body.forEach(snakeFestival => {
       new SnakeFestival(snakeFestival, el)
     })
@@ -63,15 +71,11 @@ class Snake {
       (this.direction === 'top' && axyis.y >= 0) ||
       (this.direction === 'bottom' && axyis.y < this.el.offsetHeight)
       ) {
-        this.body.splice(0,1)
-        this.body.push(axyis)
-        this.body.forEach(item => {
-          if (item.color) {
-            delete item.color
-          } 
-        })
-        this.body[this.body.length -1].color = this.color
+          this.body.splice(0,1)
+          this.body.push(axyis)
+          
         this.drawSnake(this.ele)
+        this.eat()
     }
     else {
       clearInterval(this.interval)
@@ -123,14 +127,48 @@ class Snake {
       else if (e.key === 'ArrowRight') {
         this.direction = 'right'
       }
-      const nodes = this.ele.childNodes
+      this.remove()
+      this.move(this.direction)
+    }, true)
+  }
+  // 蛇 吃食物
+  eat () {
+    // 确定食物的位置
+
+    const food = this.el.querySelector('.food')
+    if (food) {
+      const left = food.offsetLeft
+      const top = food.offsetTop
+      if (this.x === left && this.y === top) {
+        const parentObj = food.parentNode
+        parentObj.removeChild(food)
+        let tempObj = {
+          x: left,
+          y: top
+        }
+        this.body.push(tempObj)
+        this.remove()
+        this.drawSnake(this.ele)
+      }
+
+    }
+    else {
+      this.generateFood()
+    }
+    
+  }
+  // 生成食物
+  generateFood () {
+    let food = new Food({}, this.el)
+    
+  }
+  remove () {
+    const nodes = this.ele.childNodes
       if (nodes.length > 0) {
         for (var i = nodes.length - 1; i >= 0; i--) {
           this.ele.removeChild(nodes[i]);
         }
       }
-      this.move(this.direction)
-    }, true)
   }
 }
 class SnakeFestival extends Snake  {

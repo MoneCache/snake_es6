@@ -16,6 +16,7 @@ class Food {
   }
   createElement () {
     const div = document.createElement('div')
+    div.className = 'food'
     div.style.boxSizing = this.boxSizing
     div.style.position = this.position
     
@@ -31,13 +32,19 @@ class Food {
   randomLocation () {
     const width = this.el.offsetWidth - this.width
     const height = this.el.offsetHeight - this.height
-    const left = Math.floor(Math.random() * width)
-    const top = Math.floor(Math.random() * height)
+    const left = Math.floor(Math.random() * 30) * this.width
+    const top = Math.floor(Math.random() * 30) * this.height
     this.top = top
     this.left = left
-    console.log('top' + top)
-    console.log('left' + left)
 
+  }
+  remove () {
+    const nodes = this.el.querySelector('.food')
+    if (nodes.length > 0) {
+      for (var i = nodes.length - 1; i >= 0; i--) {
+        this.el.removeChild(nodes[i]);
+      }
+    }
   }
 }
 
