@@ -9,23 +9,25 @@ class Snake {
     this.x = this.width * (this.size - 1) // 减去1代表, 蛇头是正方形, 初始化时, 蛇头右上方的顶点坐标才是蛇头的正确位置
     this.y = 0
     this.direction = 'right'
-    this.step = obj.step || 10
+    this.color = 'green'
+    this.step = obj.step || 20
     this.speed = obj.speed || 1000
     this.el = el
     this.ele = null
     this.body = [
       {
-        x: 40,
-        y: 0,
-        color: 'green'
+        x: 0,
+        y: 0
       },
       {
         x: 20,
         y: 0
       },
+      
       {
-        x: 0,
-        y: 0
+        x: this.x,
+        y: this.y,
+        color: this.color
       }
     ]
   }
@@ -46,6 +48,7 @@ class Snake {
     this.el.appendChild(div)
   }
   drawSnake (el) {
+    console.log(this.body)
     this.body.forEach(snakeFestival => {
       new SnakeFestival(snakeFestival, el)
     })
@@ -54,18 +57,20 @@ class Snake {
   move (direction) {
     this.direction = direction
     let axyis = this.getSnakeHeadCoordinate()
-    console.log(axyis)
-    let snakeHead = axyis[0]
-    snakeHead.color = 'green'
     if (
-      (this.direction === 'left' && snakeHead.x > 0) || 
-      (this.direction === 'right' && snakeHead.x < this.el.offsetWidth) ||
-      (this.direction === 'top' && snakeHead.y > 0) ||
-      (this.direction === 'bottom' && snakeHead.y < this.el.offsetHeight)
+      (this.direction === 'left' && axyis.x >= 0) || 
+      (this.direction === 'right' && axyis.x < this.el.offsetWidth) ||
+      (this.direction === 'top' && axyis.y >= 0) ||
+      (this.direction === 'bottom' && axyis.y < this.el.offsetHeight)
       ) {
-        this.x = snakeHead.x
-        this.y = snakeHead.y
-        this.body = axyis
+        this.body.splice(0,1)
+        this.body.push(axyis)
+        this.body.forEach(item => {
+          if (item.color) {
+            delete item.color
+          } 
+        })
+        this.body[this.body.length -1].color = this.color
         this.drawSnake(this.ele)
     }
     else {
@@ -74,29 +79,22 @@ class Snake {
     }
   }
   getSnakeHeadCoordinate () {
-    const body = JSON.parse(JSON.stringify(this.body))
-    let tempArr = body.map(item => {
-      
-      if (this.direction === 'right') {
-        item.x += this.step
-        item.y = this.y
-      }
-      else if (this.direction === 'left') {
-        item.x -= this.step
-        item.y = this.y
-      }
-      else if (this.direction === 'top') {
-        item.y -= this.step
-        item.x = this.x
-      }
-      else if (this.direction === 'bottom') {
-        item.y += this.step
-        item.x = this.x
-      }
-      return item
-    })
-    // console.log(tempArr)
-    return tempArr
+    let tempObj = {}
+    if (this.direction === 'right') {
+      this.x += this.step
+    }
+    else if (this.direction === 'left') {
+      this.x -= this.step
+    }
+    else if (this.direction === 'top') {
+      this.y -= this.step
+    }
+    else if (this.direction === 'bottom') {
+      this.y += this.step
+    }
+    tempObj.x = this.x
+    tempObj.y = this.y
+    return tempObj
   }
   autoPerform () {
     this.interval = setInterval(() => {

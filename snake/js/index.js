@@ -5,7 +5,7 @@ window.onload = function () {
   let food = new Food({}, container)
 
   let snake = new Snake({
-    speed: 1000
+    speed: 300
   }, container)
   snake.init()
 }
